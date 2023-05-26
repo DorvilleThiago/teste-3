@@ -1,9 +1,16 @@
 import React from 'react';
-import { IonContent, IonHeader, IonInput, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import ExploreContainer from '../components/ExploreContainer';
+import { IonContent, IonHeader, IonInput, IonPage, IonTitle, IonToolbar, IonLabel } from '@ionic/react';
 import './Tab1.css';
+import AddComponent from '../components/AddComponent';
+import { Storage } from '@ionic/storage';
+
 
 const Tab1: React.FC = () => {
+
+
+  const store = new Storage();
+  
+
   return (
     <IonPage>
 
@@ -19,11 +26,11 @@ const Tab1: React.FC = () => {
 
         <IonHeader collapse="condense">
           <IonToolbar>
-            <IonTitle size="large">Tab 1</IonTitle>
+            <IonTitle size="large">Solicitar</IonTitle>
           </IonToolbar>
         </IonHeader>
 
-        <ExploreContainer name="Tab 1 page" />
+        <AddComponent/>
 
       </IonContent>
 

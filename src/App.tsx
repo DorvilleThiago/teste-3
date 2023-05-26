@@ -39,11 +39,6 @@ setupIonicReact();
 
 const App: React.FC = () => {
 
-  useEffect(() => {
-    const con = async() => console.log(await Network.getStatus())
-    con()
-  }, [])
-
   return (
     <IonApp>
       <IonReactRouter>
