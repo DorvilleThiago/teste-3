@@ -2,14 +2,8 @@ import React from 'react';
 import { IonContent, IonHeader, IonInput, IonPage, IonTitle, IonToolbar, IonLabel } from '@ionic/react';
 import './Tab1.css';
 import AddComponent from '../components/AddComponent';
-import { Storage } from '@ionic/storage';
-
 
 const Tab1: React.FC = () => {
-
-
-  const store = new Storage();
-  
 
   return (
     <IonPage>
