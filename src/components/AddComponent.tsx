@@ -28,6 +28,7 @@ function AddComponent(props: any) {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        console.log(nome, number, detalhes)
         const response = await Send(nome, number, detalhes);
         console.log(response)
         if (response) {
@@ -79,14 +80,18 @@ function AddComponent(props: any) {
       getPendentes()
     }, [])
 
+    useEffect(() => {
+        console.log(detalhes)
+    }, [detalhes])
+
     return (
         <IonGrid>
             <form onSubmit={handleSubmit}>
             <IonRow>
-                <IonInput onIonChange={(e) => setNome(e.detail.value!)} label='Nome' labelPlacement='stacked' placeholder='Caneta' type='text'/>
-                <IonInput onIonChange={(e) => setNumber(parseInt(e.detail.value!))} label='Quantidade' labelPlacement='stacked' placeholder='5' type='number' />
+                <IonInput onIonInput={(e) => setNome(e.detail.value!)} debounce={200} label='Nome' labelPlacement='stacked' placeholder='Caneta' type='text'/>
+                <IonInput onIonInput={(e) => setNumber(parseInt(e.detail.value!))} debounce={200} label='Quantidade' labelPlacement='stacked' placeholder='5' type='number' />
                     <IonTextarea
-                    onIonChange={(e) => setDetalhes(e.detail.value!)}
+                    onIonInput={(e) => setDetalhes(e.detail.value!)}
                     fill='solid'
                     label='Detalhes'
                     labelPlacement='stacked'
