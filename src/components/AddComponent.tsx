@@ -1,17 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './AddComponent.css';
-import { IonAlert, IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonGrid, IonIcon, IonInput, IonRow, IonText, IonTextarea } from '@ionic/react';
+import { IonAlert, IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonGrid, IonIcon, IonInput, IonModal, IonRow, IonTextarea, } from '@ionic/react';
 import { send, sync } from 'ionicons/icons';
 import { Send } from '../services/Send';
 import { Storage } from '@ionic/storage';
+import { Camera, CameraResultType } from '@capacitor/camera';
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
 
-function AddComponent(props: any) {
-
+function AddComponent() {
+    
     const storage = new Storage();
     
     const [nome, setNome] = useState('');
     const [number, setNumber] = useState(0);
     const [detalhes, setDetalhes] = useState('');
+    const [picBlob, setPicBlob] = useState<Blob | null>(null);
+    const [url, setUrl] = useState<any>(null);
 
     const [enviou, setEnviou] = useState(false);
     const [falhou, setFalhou] = useState(false);
@@ -24,7 +28,26 @@ function AddComponent(props: any) {
         nome: string;
         quantidade: number;
         detalhes: string;
-      }
+    }
+    
+    const handleFileInputChange = async () => {
+        defineCustomElements();
+        try {
+          const image = await Camera.getPhoto({
+            quality: 50,
+            allowEditing: false,
+            resultType: CameraResultType.Uri
+          });
+            if (image.webPath) {
+                const blob = await fetch(image.webPath.replace('capacitor://', ''))
+                    .then(response => response.blob())
+                setPicBlob(blob)
+                setUrl(URL.createObjectURL(blob))
+            }
+        } catch (error) {
+          console.error('Error capturing image:', error);
+        }
+      };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -88,15 +111,19 @@ function AddComponent(props: any) {
         <IonGrid>
             <form onSubmit={handleSubmit}>
             <IonRow>
-                <IonInput onIonInput={(e) => setNome(e.detail.value!)} debounce={200} label='Nome' labelPlacement='stacked' placeholder='Caneta' type='text'/>
-                <IonInput onIonInput={(e) => setNumber(parseInt(e.detail.value!))} debounce={200} label='Quantidade' labelPlacement='stacked' placeholder='5' type='number' />
-                    <IonTextarea
-                    onIonInput={(e) => setDetalhes(e.detail.value!)}
-                    fill='solid'
-                    label='Detalhes'
-                    labelPlacement='stacked'
-                    placeholder='Apenas canetas azuis e de ponta fina...' />
-            </IonRow>
+                <IonInput onIonInput={(e) => setNome(e.detail.value!)} label='Nome' labelPlacement='stacked' placeholder='Caneta' type='text'/>
+                <IonInput onIonInput={(e) => setNumber(parseInt(e.detail.value!))} label='Quantidade' labelPlacement='stacked' placeholder='5' type='number' />
+                <IonTextarea
+                onIonInput={(e) => setDetalhes(e.detail.value!)}
+                fill='solid'
+                label='Detalhes'
+                labelPlacement='stacked'
+                placeholder='Apenas canetas azuis e de ponta fina...' />
+                <IonButton onClick={handleFileInputChange}>Tirar Foto</IonButton>
+                {picBlob 
+                && 
+                <IonButton id="open-modal" expand="block">Ver Foto</IonButton>}
+                </IonRow>
             <IonButton className='sendButtom' type='submit' shape='round'>
                 <IonIcon slot='start' icon={send}/>
                 Pedir
@@ -157,6 +184,9 @@ function AddComponent(props: any) {
                 buttons={['OK']}
                 onDidDismiss={() => setSyncNoNeed(false)}
             />
+            <IonModal>
+            </IonModal>
+            
         </IonGrid>
         
     )

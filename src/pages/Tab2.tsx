@@ -2,11 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonChip, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import './Tab2.css';
 import { GetAllPedidos } from '../services/GetAllPedidos';
-import { Network } from '@capacitor/network';
 import { Storage } from '@ionic/storage';
 
 const Tab2: React.FC = () => {
-
   interface Item {
     nome: string;
     quantidade: number;
@@ -37,7 +35,7 @@ const Tab2: React.FC = () => {
     setPedidos(offpedidos)
   }
   } 
-  
+
   useEffect(() => {
     getPedidos()
   }, [])

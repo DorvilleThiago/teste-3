@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import {
   IonApp,
@@ -11,7 +11,7 @@ import {
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { checkbox, cloudUpload, cloudUploadOutline, ellipse, sendOutline, square, triangle } from 'ionicons/icons';
+import { checkbox, cloudUpload} from 'ionicons/icons';
 import Tab1 from './pages/Tab1';
 import Tab2 from './pages/Tab2';
 
@@ -30,7 +30,6 @@ import '@ionic/react/css/text-alignment.css';
 import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
-import { Network } from '@capacitor/network';
 
 /* Theme variables */
 import './theme/variables.css';
