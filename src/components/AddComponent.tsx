@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './AddComponent.css';
-import { IonAlert, IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonGrid, IonIcon, IonInput, IonModal, IonRow, IonTextarea, } from '@ionic/react';
-import { send, sync } from 'ionicons/icons';
+import { IonAlert, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonGrid, IonHeader, IonIcon, IonImg, IonInput, IonModal, IonRow, IonTextarea, IonTitle, IonToolbar, } from '@ionic/react';
+import { camera, flower, flowerOutline, send, sync } from 'ionicons/icons';
 import { Send } from '../services/Send';
 import { Storage } from '@ionic/storage';
 import { Camera, CameraResultType } from '@capacitor/camera';
@@ -14,9 +14,9 @@ function AddComponent() {
     const [nome, setNome] = useState('');
     const [number, setNumber] = useState(0);
     const [detalhes, setDetalhes] = useState('');
-    const [picBlob, setPicBlob] = useState<Blob | null>(null);
-    const [url, setUrl] = useState('');
+    const [images, setImages] = useState<Foto[]>([]);
 
+    const [modal, setModal] = useState(false);
     const [enviou, setEnviou] = useState(false);
     const [falhou, setFalhou] = useState(false);
     const [syncSucess, setSyncSucess] = useState(false);
@@ -28,10 +28,19 @@ function AddComponent() {
         nome: string;
         quantidade: number;
         detalhes: string;
-        fotos: Blob[];
+        fotos: Foto[];
+    }
+
+    interface Foto {
+        url: string;
+        blob: Blob;
     }
     
     const handleFileInputChange = async () => {
+        if (images.length === 3) {
+            console.log('número máximo de fotos atingido')
+            return;
+        }
         defineCustomElements();
         try {
           const image = await Camera.getPhoto({
@@ -40,10 +49,10 @@ function AddComponent() {
             resultType: CameraResultType.Uri
           });
             if (image.webPath) {
-                const blob = await fetch(image.webPath.replace('capacitor://', ''))
+                let blob = await fetch(image.webPath.replace('capacitor://', ''))
                     .then(response => response.blob())
-                setPicBlob(blob)
-                setUrl(URL.createObjectURL(blob))
+                const url = URL.createObjectURL(blob);
+                setImages(prevImages => [...prevImages, {blob: blob, url }])
             }
         } catch (error) {
           console.error('Error capturing image:', error);
@@ -52,11 +61,11 @@ function AddComponent() {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        if (!nome || !number || !picBlob || !detalhes) {
+        if (!nome || !number || images.length < 1 || !detalhes) {
             console.log(`tá faltando algum dos parâmetros`)
             return;
         }
-        const response = await Send(nome, number, detalhes, [picBlob]);
+        const response = await Send(nome, number, detalhes, images);
         console.log(response)
         if (response) {
             setEnviou(true)
@@ -107,10 +116,6 @@ function AddComponent() {
       getPendentes()
     }, [])
 
-    useEffect(() => {
-        console.log(detalhes)
-    }, [detalhes])
-
     return (
         <IonGrid>
             <form onSubmit={handleSubmit}>
@@ -123,10 +128,10 @@ function AddComponent() {
                 label='Detalhes'
                 labelPlacement='stacked'
                 placeholder='Apenas canetas azuis e de ponta fina...' />
-                <IonButton onClick={handleFileInputChange}>Tirar Foto</IonButton>
-                {picBlob 
+                <IonButton style={{marginLeft: 10, marginTop: 12}} onClick={handleFileInputChange}> <IonIcon slot='start' icon={camera} /> Tirar Foto</IonButton>
+                {images.length > 0
                 && 
-                <IonButton id="open-modal" expand="block">Ver Foto</IonButton>}
+                <IonButton style={{marginLeft: 10, marginTop: 12}} onClick={() => setModal(true)} expand="block"> <IonIcon slot='start' icon={flowerOutline} /> Ver Fotos</IonButton>}
                 </IonRow>
             <IonButton className='sendButtom' type='submit' shape='round'>
                 <IonIcon slot='start' icon={send}/>
@@ -188,7 +193,24 @@ function AddComponent() {
                 buttons={['OK']}
                 onDidDismiss={() => setSyncNoNeed(false)}
             />
-            <IonModal>
+            <IonModal isOpen={modal}>
+                <IonHeader>
+                    <IonToolbar>
+                    <IonTitle>Fotos</IonTitle>
+                    <IonButtons slot="end">
+                        <IonButton onClick={() => setModal(false)}>Fechar</IonButton>
+                    </IonButtons>
+                    </IonToolbar>
+                </IonHeader>
+                <IonContent scrollY={true}>
+                    <ul style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 15, padding: 0}}>
+                    {images.map((image, index) => (
+                        <li style={{listStyleType: 'none', width: '90%'}} key={index}>
+                        <IonImg src={image.url} alt={`Image ${index}`} />
+                        </li>
+                    ))}
+                    </ul>
+                </IonContent>
             </IonModal>
             
         </IonGrid>

@@ -68,9 +68,11 @@ const Tab2: React.FC = () => {
             <IonCard color="tertiary">
               <IonCardHeader>
                 <IonCardTitle>{item.nome}</IonCardTitle>
-                <IonCardSubtitle>x{item.quantidade}</IonCardSubtitle>
+                <IonCardSubtitle>x{item.quantidade} - {item.detalhes}</IonCardSubtitle>
               </IonCardHeader>
-              <IonCardContent>{item.detalhes}</IonCardContent>
+              <IonCardContent>
+                <IonButton color={'dark'}>Ver Fotos</IonButton>
+              </IonCardContent>
             </IonCard>
           </li>)
         )}

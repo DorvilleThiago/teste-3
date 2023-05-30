@@ -1,6 +1,6 @@
 export async function GetAllPedidos() {
     try {
-        const response = await fetch('http://143.198.101.34:9000/pedidos', {
+        const response = await fetch('http://localhost:9000/pedidos', {
             method: 'GET',
         })
         return await response.json()
