@@ -1,4 +1,4 @@
-export async function Send(nome: string, numero: number, detalhes: string) {
+export async function Send(nome: string, numero: number, detalhes: string, fotos: Blob[]) {
     try {
         const response = await fetch('http://143.198.101.34:9000/create', {
             method: 'POST',
@@ -6,7 +6,8 @@ export async function Send(nome: string, numero: number, detalhes: string) {
             body: JSON.stringify({
                 nome,
                 quantidade: numero,
-                detalhes
+                detalhes,
+                fotos
             })
         })
         return await response.json()

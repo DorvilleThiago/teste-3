@@ -15,7 +15,7 @@ function AddComponent() {
     const [number, setNumber] = useState(0);
     const [detalhes, setDetalhes] = useState('');
     const [picBlob, setPicBlob] = useState<Blob | null>(null);
-    const [url, setUrl] = useState<any>(null);
+    const [url, setUrl] = useState('');
 
     const [enviou, setEnviou] = useState(false);
     const [falhou, setFalhou] = useState(false);
@@ -28,6 +28,7 @@ function AddComponent() {
         nome: string;
         quantidade: number;
         detalhes: string;
+        fotos: Blob[];
     }
     
     const handleFileInputChange = async () => {
@@ -51,8 +52,11 @@ function AddComponent() {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        console.log(nome, number, detalhes)
-        const response = await Send(nome, number, detalhes);
+        if (!nome || !number || !picBlob || !detalhes) {
+            console.log(`tá faltando algum dos parâmetros`)
+            return;
+        }
+        const response = await Send(nome, number, detalhes, [picBlob]);
         console.log(response)
         if (response) {
             setEnviou(true)
@@ -87,7 +91,7 @@ function AddComponent() {
             return;
         }
         for (const obj of pendentes) {
-            const res = await Send(obj.nome, obj.quantidade, obj.detalhes)
+            const res = await Send(obj.nome, obj.quantidade, obj.detalhes, obj.fotos)
             if (!res) {
                 setSyncFail(true)
                 return;
