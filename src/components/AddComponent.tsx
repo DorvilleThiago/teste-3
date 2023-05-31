@@ -33,7 +33,7 @@ function AddComponent() {
 
     interface Foto {
         url: string;
-        blob: Blob;
+        blob: string;
     }
     
     const handleFileInputChange = async () => {
@@ -49,11 +49,19 @@ function AddComponent() {
             resultType: CameraResultType.Uri
           });
             if (image.webPath) {
-                let blob = await fetch(image.webPath.replace('capacitor://', ''))
+                const blob = await fetch(image.webPath.replace('capacitor://', ''))
                     .then(response => response.blob())
                 const url = URL.createObjectURL(blob);
-                setImages(prevImages => [...prevImages, {blob: blob, url }])
-            }
+
+                const reader = new FileReader();
+                reader.onloadend = function () {
+                    const result = reader.result as string;
+                    const base64Image = (result as string).split(',')[1];
+                    setImages(prevImages => [...prevImages, {blob: base64Image, url }])
+                };
+                reader.readAsDataURL(blob);
+                
+            }   
         } catch (error) {
           console.error('Error capturing image:', error);
         }
