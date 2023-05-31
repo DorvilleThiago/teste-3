@@ -3,7 +3,6 @@ import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardS
 import './Tab2.css';
 import { GetAllPedidos } from '../services/GetAllPedidos';
 import { Storage } from '@ionic/storage';
-import TransformBlob from '../services/TransformBlob';
 import { Transform } from 'stream';
 
 const Tab2: React.FC = () => {
@@ -56,7 +55,7 @@ const Tab2: React.FC = () => {
     return fotos.find((pedido) => pedido.id === id);
   };
   
-
+/* 
   const getFotos = () => {
     console.log('coiso: '+pedidos)
     const fotos:Fotos[] = []
@@ -76,7 +75,7 @@ const Tab2: React.FC = () => {
       fotos.push(fotos_do_pedido)
     })
     setFotos(fotos)
-  }
+  } */
 
   useEffect(() => {
     const rodar = async() => {
@@ -91,7 +90,7 @@ const Tab2: React.FC = () => {
 
   useEffect(() => {
     console.log('pedidos: ' + pedidos)
-    getFotos()
+   /*  getFotos() */
   }, [pedidos])
 
   useEffect(() => {

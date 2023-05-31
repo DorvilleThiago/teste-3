@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './AddComponent.css';
 import { IonAlert, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonGrid, IonHeader, IonIcon, IonImg, IonInput, IonModal, IonRow, IonTextarea, IonTitle, IonToolbar, } from '@ionic/react';
-import { camera, flower, flowerOutline, send, sync } from 'ionicons/icons';
+import { camera, flowerOutline, send, sync } from 'ionicons/icons';
 import { Send } from '../services/Send';
 import { Storage } from '@ionic/storage';
 import { Camera, CameraResultType } from '@capacitor/camera';
@@ -33,7 +33,7 @@ function AddComponent() {
 
     interface Foto {
         url: string;
-        blob: string;
+        blob: Blob;
     }
     
     const handleFileInputChange = async () => {
@@ -51,16 +51,8 @@ function AddComponent() {
             if (image.webPath) {
                 const blob = await fetch(image.webPath.replace('capacitor://', ''))
                     .then(response => response.blob())
-                const url = URL.createObjectURL(blob);
-
-                const reader = new FileReader();
-                reader.onloadend = function () {
-                    const result = reader.result as string;
-                    const base64Image = (result as string).split(',')[1];
-                    setImages(prevImages => [...prevImages, {blob: base64Image, url }])
-                };
-                reader.readAsDataURL(blob);
-                
+                const url = URL.createObjectURL(blob)
+                setImages(prevImages => [...prevImages, {blob, url }])
             }   
         } catch (error) {
           console.error('Error capturing image:', error);
