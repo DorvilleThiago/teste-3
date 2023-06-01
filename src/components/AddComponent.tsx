@@ -193,7 +193,7 @@ function AddComponent() {
                 buttons={['OK']}
                 onDidDismiss={() => setSyncNoNeed(false)}
             />
-            <IonModal isOpen={modal}>
+            <IonModal isOpen={modal} onDidDismiss={() => setModal(false)}>
                 <IonHeader>
                     <IonToolbar>
                     <IonTitle>Fotos</IonTitle>

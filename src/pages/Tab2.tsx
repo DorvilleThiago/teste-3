@@ -4,10 +4,21 @@ import './Tab2.css';
 import { GetAllPedidos } from '../services/GetAllPedidos';
 import { Storage } from '@ionic/storage';
 import { Transform } from 'stream';
+import { Buffer } from 'buffer';
+import * as fs from 'fs';
+import { createCanvas, loadImage } from 'canvas';
 
-function convertToUrl(buffer: Buffer) {
-  const base64Data = buffer.toString('base64');
-  return `data:image/jpeg;base64,${base64Data}`
+async function convertToUrl(buffer: Buffer){
+
+  const image = await loadImage(buffer);
+  const canvas = createCanvas(image.width, image.height);
+  const context = canvas.getContext('2d');
+  context.drawImage(image, 0, 0);
+  const jpegBuffer = canvas.toBuffer('image/jpeg');
+  const base64Data = jpegBuffer.toString('base64');
+  const jpegUrl = `data:image/jpeg;base64,${base64Data}`;
+
+  return jpegUrl;
 }
 
 const Tab2: React.FC = () => {
@@ -16,19 +27,17 @@ const Tab2: React.FC = () => {
     nome: string;
     quantidade: number;
     detalhes: string;
-    fotos: Buffer[];
   }
   interface Fotos {
     foto: Buffer[]
-    id: number
   }
   
-
   const [pedidos, setPedidos] = useState<Item[]>([])
-  const [online, setOnline] = useState(false)
+  const [online, setOnline] = useState('carregando')
   const storage = new Storage();
 
-  const [fotosAtual, setFotosAtual] = useState<Fotos>()
+  const [idAtual, setIdAtual] = useState<number>()
+  const [listaUrls, setListaUrls] = useState<string[]>([])
   const [fotos, setFotos] = useState<Fotos[]>([])
   const [fotosModal, setFotosModal] = useState(false)
 
@@ -36,61 +45,47 @@ const Tab2: React.FC = () => {
     await storage.create();
     const resultPedidos = await GetAllPedidos()
     
-  if (resultPedidos) {
-    setPedidos(resultPedidos)
-    await storage.set('Pedidos', resultPedidos)
-    setOnline(true)
-  } else { 
-    let offpedidos = await storage.get('Pedidos')
-    setOnline(false)
-    if (!offpedidos) {
-      offpedidos = [{
-        nome: "Não há uma base de dados",
-        quantidade: 0,
-        detalhes: "..."
-      }]
-    }
-    setPedidos(offpedidos)
-  }
-  } 
-
-  const findFotos = (id: number): Fotos | undefined => {
-    return fotos.find((pedido) => pedido.id === id);
-  };
-  
-
-  const getFotos = () => {
-    console.log('logPósPedidos: '+pedidos)
-    const fotos:Fotos[] = []
-    pedidos.map((pedido) => {
-      const fotos_do_pedido = {
-        foto: pedido.fotos,
-        id: pedido.id
+    if (resultPedidos) {
+      setPedidos(resultPedidos)
+      await storage.set('Pedidos', resultPedidos)
+      setOnline('online')
+    } else {
+      let offpedidos = await storage.get('Pedidos')
+      setOnline('offline')
+      if (!offpedidos) {
+        offpedidos = [{
+          nome: "Não há uma base de dados",
+          quantidade: 0,
+          detalhes: "..."
+        }]
       }
-      fotos.push(fotos_do_pedido)
-    })
-    setFotos(fotos)
-  } 
+      setPedidos(offpedidos)
+    }
+  }
 
   useEffect(() => {
-    const rodar = async() => {
-      await getPedidos()
-    }
-    rodar()
+      getPedidos()
   }, [])
 
   useEffect(() => {
-    console.log('fotosAtual: '+fotosAtual)
-  }, [fotosAtual])
-
-  useEffect(() => {
-    console.log('pedidos: ' + pedidos)
-     getFotos()
-  }, [pedidos])
-
-  useEffect(() => {
-    console.log('fotos: '+fotos)
-  }, [fotos])
+    const rodar = async () => {
+      if (idAtual != undefined) {
+        setListaUrls([])
+        const lista = []
+        const fotos = await fetch(`http://localhost:9000/fotos/${idAtual}`, {
+          method: 'GET'
+        })
+        const fotosJson = await fotos.json()
+        for (const foto of fotosJson) {
+          const buffer = Buffer.from(foto.foto);
+          const base64Data = buffer.toString('base64');
+          lista.push(`data:image/jpeg;base64,${base64Data}`)
+        }
+        setListaUrls(lista) 
+      }
+    }
+    rodar()
+  }, [idAtual])
 
   return (
     <IonPage>
@@ -108,12 +103,11 @@ const Tab2: React.FC = () => {
           </IonToolbar>
         </IonHeader>
 
-        {online ?
-          (<IonChip className='onlineStatus' color='success'>Online</IonChip>)
-          :
-          (<IonChip className='onlineStatus' color='danger'>Offline</IonChip>)
-        }
-        <IonButton color={'light'} onClick={() => getPedidos()} shape="round">Atualizar</IonButton>
+        {online === 'online ' && (<IonChip className='onlineStatus' color='success'>Online</IonChip>)}
+        {online === 'offline' && (<IonChip className='onlineStatus' color='danger'>Offline</IonChip>)}
+        {online === 'carregando' && (<IonChip className='onlineStatus' color='warning'>Carregando...</IonChip>)}
+
+        <IonButton style={{marginTop: 8}} color={'light'} onClick={() => getPedidos()} shape="round">Atualizar</IonButton>
 
         {pedidos.map((item, index) => (
           <li key={index}>
@@ -124,9 +118,8 @@ const Tab2: React.FC = () => {
               </IonCardHeader>
               <IonCardContent>
                 <IonButton onClick={() => {
-                  console.log(fotos)
                   console.log(item.id)
-                  setFotosAtual(findFotos(item.id))
+                  setIdAtual(item.id)
                   setFotosModal(true)
                 }} color={'dark'}>Ver Fotos</IonButton>
               </IonCardContent>
@@ -134,7 +127,7 @@ const Tab2: React.FC = () => {
           </li>)
         )}
       </IonContent>
-      <IonModal isOpen={fotosModal}>
+      <IonModal isOpen={fotosModal} onDidDismiss={() => setFotosModal(false)}>
                 <IonHeader>
                     <IonToolbar>
                     <IonTitle>Fotos</IonTitle>
@@ -145,9 +138,9 @@ const Tab2: React.FC = () => {
                 </IonHeader>
                 <IonContent scrollY={true}>
                     <ul style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 15, padding: 0}}>
-                    {fotosAtual?.foto.map((foto, index) => (
+                    {listaUrls.map((foto, index) => (
                         <li style={{listStyleType: 'none', width: '90%'}} key={index}>
-                        <IonImg src={convertToUrl(foto)} alt={`Image ${index}`} />
+                        <img src={foto} alt={`Image ${index}`} />
                         </li>
                     ))}
                     </ul>
