@@ -127,7 +127,7 @@ const Tab2: React.FC = () => {
         )}
 
         <IonButton
-          style={{ marginTop: 8 }}
+          style={{ marginTop:0 }}
           color={"light"}
           onClick={() => getPedidos()}
           shape="round"
