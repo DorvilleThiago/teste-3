@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { CapacitorHttp, HttpResponse } from '@capacitor/core';
 import {
   IonButton,
   IonButtons,
@@ -76,10 +77,11 @@ const Tab2: React.FC = () => {
         setListaUrls([]);
         const lista = [];
         try {
-          const fotos = await fetch(`http://localhost:9000/fotos/${idAtual}`, {
-            method: "GET",
-          });
-          const fotosJson = await fotos.json();
+          const options = {
+            url: `https://5d38-200-170-138-241.ngrok-free.app/fotos/${idAtual}`,
+          };
+          const fotos: HttpResponse = await CapacitorHttp.get(options);
+          const fotosJson = fotos.data;
           for (const foto of fotosJson) {
             const buffer = Buffer.from(foto.foto);
             const base64Data = buffer.toString("base64");
@@ -117,7 +119,7 @@ const Tab2: React.FC = () => {
         )}
         {online === "offline" && (
           <IonChip className="onlineStatus" color="danger">
-            Offline
+            OfflineTESTE
           </IonChip>
         )}
         {online === "carregando" && (

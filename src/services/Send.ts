@@ -19,7 +19,7 @@ interface Foto {
               });
               
             
-            const response = await fetch('http://localhost:9000/create', {
+            const response = await fetch('https://5d38-200-170-138-241.ngrok-free.app/create', {
             method: 'POST',
             body: formData,
             });
