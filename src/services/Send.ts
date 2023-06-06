@@ -1,3 +1,5 @@
+import { CapacitorHttp, HttpResponse } from '@capacitor/core';
+
 interface Foto {
     url: string;
     blob: Blob;
@@ -6,8 +8,7 @@ interface Foto {
     export async function Send(nome: string, numero: number, detalhes: string, fotos: Foto[]) {
         console.log(nome, numero, detalhes, fotos)
         console.log(fotos[0].blob)
-        try {
-            
+        try {  
             const formData = new FormData();
             formData.append('nome', nome);
             formData.append('quantidade', numero.toString());
@@ -18,12 +19,15 @@ interface Foto {
                 formData.append('mergedFoto', file);
               });
               
-            
-            const response = await fetch('https://5d38-200-170-138-241.ngrok-free.app/create', {
-            method: 'POST',
-            body: formData,
-            });
-            return await response.json();
+            const options = {
+                url: 'http://thiagodorville.ddns.net:25565/create',
+                headers: {
+                    'Content-Type': 'multipart/form-data; boundary=----WebKitFormBoundarykgOVx4OXSrlqllbq',
+                  },
+                data: formData,
+            };
+            const response: HttpResponse = await CapacitorHttp.post(options);
+            return response.data
         } catch (err) { 
             return false
         }

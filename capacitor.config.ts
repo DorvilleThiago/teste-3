@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'teste3',
   webDir: 'build',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'http'
   },
   plugins: {
     CapacitorHttp: {

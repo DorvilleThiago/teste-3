@@ -7,6 +7,16 @@ import { Storage } from '@ionic/storage';
 import { Camera, CameraResultType } from '@capacitor/camera';
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 
+function base64toBlob(base64:any) {
+    const byteCharacters = atob(base64);
+    const byteArrays = [];
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteArrays.push(byteCharacters.charCodeAt(i));
+    }
+    const byteArray = new Uint8Array(byteArrays);
+    return new Blob([byteArray], { type: 'image/jpeg' }); // Adjust the type if necessary
+  }
+
 function AddComponent() {
     
     const storage = new Storage();
@@ -41,19 +51,26 @@ function AddComponent() {
             console.log('número máximo de fotos atingido')
             return;
         }
+        console.log('A')
         defineCustomElements();
+        console.log('B')
         try {
           const image = await Camera.getPhoto({
-            quality: 50,
+            quality: 30,
             allowEditing: false,
-            resultType: CameraResultType.Uri
+            resultType: CameraResultType.Base64
           });
-            if (image.webPath) {
-                const blob = await fetch(image.webPath.replace('capacitor://', ''))
-                    .then(response => response.blob())
+        console.log('C')
+            if (image.base64String) {
+                const blob = base64toBlob(image.base64String);
+                console.log('Image: ' + blob)
+                console.log('D')
                 const url = URL.createObjectURL(blob)
-                setImages(prevImages => [...prevImages, {blob, url }])
-            }   
+                console.log('E')
+                setImages(prevImages => [...prevImages, { blob, url }])
+                console.log('F')
+            }
+            console.log('G')
         } catch (error) {
           console.error('Error capturing image:', error);
         }
