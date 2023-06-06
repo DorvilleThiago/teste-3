@@ -21,9 +21,6 @@ interface Foto {
               
             const options = {
                 url: 'http://thiagodorville.ddns.net:25565/create',
-                headers: {
-                    'Content-Type': 'multipart/form-data; boundary=----WebKitFormBoundarykgOVx4OXSrlqllbq',
-                  },
                 data: formData,
             };
             const response: HttpResponse = await CapacitorHttp.post(options);

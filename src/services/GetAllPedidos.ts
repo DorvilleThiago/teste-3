@@ -2,7 +2,7 @@ import { CapacitorHttp, HttpResponse } from '@capacitor/core';
 
 export async function GetAllPedidos () {
     const options = {
-      url: 'http://thiagodorville.ddns.net:25565/pedidos',
+      url: 'https://26f8-200-199-64-170.ngrok-free.app/pedidos',
     };
     try {
         const response: HttpResponse = await CapacitorHttp.get(options);

@@ -78,7 +78,7 @@ const Tab2: React.FC = () => {
         const lista = [];
         try {
           const options = {
-            url: `http://thiagodorville.ddns.net:25565/fotos/${idAtual}`,
+            url: `https://26f8-200-199-64-170.ngrok-free.app/fotos/${idAtual}`,
           };
           const fotos: HttpResponse = await CapacitorHttp.get(options);
           const fotosJson = fotos.data;
